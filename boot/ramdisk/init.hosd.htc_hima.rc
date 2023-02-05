@@ -1,0 +1,32 @@
+import init.hosd.choice_fn.rc
+import init.hosd.common.rc
+import init.hosd.qcom.rc
+
+#++ 2014.10.21 USB Team, PCN00008 ++
+#
+# import init.hosd.usb.rc for non-fusion project.
+# import init.hosd_fusion.usb.rc for fusion project.
+# You can reference above rc file on device/htc/common
+#
+import init.hosd.usb.rc
+#-- 2014.10.21 USB Team, PCN00008 --
+
+# Mount cpe image ++
+on fs
+    mkdir /firmware/cpe 0771 system system
+    wait /dev/block/bootdevice/by-name/cpe
+    mount vfat /dev/block/bootdevice/by-name/cpe /firmware/cpe ro shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
+# Mount cpe image --
+
+# factory reset protection
+on boot
+    setprop ro.frp.pst /dev/block/bootdevice/by-name/frp
+    # exfat
+    insmod /texfat.ko
+
+#Set 3LC max freq to 960MHz as default ftm cpu policy
+on property:ro.boot.mode=ftm
+	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 960000
+	write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 960000
+	write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 960000
+	write /sys/module/msm_thermal/core_control/cpus_offlined 248
